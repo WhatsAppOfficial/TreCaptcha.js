@@ -1,0 +1,101 @@
+<!-- TreCaptcha.js -->
+<script>
+    (function() {
+        const colors = ['Green', 'Blue', 'Red', 'Yellow', 'Orange', 'Pink', 'Purple'];
+
+        function getRandomColors() {
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            const options = [randomColor];
+
+            while (options.length < 3) {
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                if (!options.includes(color)) {
+                    options.push(color);
+                }
+            }
+            return {
+                questionColor: randomColor,
+                options: options.sort(() => Math.random() - 0.5) // Shuffle the options
+            };
+        }
+
+        function loadCaptcha() {
+            const overlay = document.createElement('div');
+            overlay.id = 'overlay';
+            overlay.style.position = 'fixed';
+            overlay.style.top = 0;
+            overlay.style.left = 0;
+            overlay.style.width = '100%';
+            overlay.style.height = '100%';
+            overlay.style.background = 'rgba(0, 0, 0, 0.8)';
+            overlay.style.display = 'flex';
+            overlay.style.justifyContent = 'center';
+            overlay.style.alignItems = 'center';
+            overlay.style.zIndex = 9999; // Ensure it overlays other content
+
+            const captchaBox = document.createElement('div');
+            captchaBox.style.background = '#fff';
+            captchaBox.style.padding = '20px';
+            captchaBox.style.borderRadius = '8px';
+            captchaBox.style.textAlign = 'center';
+            captchaBox.style.width = '300px';
+
+            const title = document.createElement('h1');
+            title.innerText = 'TreCaptcha';
+            captchaBox.appendChild(title);
+
+            const question = document.createElement('p');
+            captchaBox.appendChild(question);
+            const optionsDiv = document.createElement('div');
+            captchaBox.appendChild(optionsDiv);
+
+            const result = document.createElement('p');
+            captchaBox.appendChild(result);
+
+            const footer = document.createElement('div');
+            footer.innerHTML = 'Website Secured By <a href="https://trecaptcha.com" target="_blank">TreCaptcha</a>';
+            footer.style.marginTop = '20px';
+            footer.style.fontSize = '12px';
+            captchaBox.appendChild(footer);
+
+            overlay.appendChild(captchaBox);
+            document.body.appendChild(overlay);
+
+            const { questionColor, options } = getRandomColors();
+            question.innerText = `Choose the color: ${questionColor}`;
+
+            options.forEach(option => {
+                const div = document.createElement('div');
+                div.style.display = 'inline-block';
+                div.style.width = '80px';
+                div.style.height = '40px';
+                div.style.margin = '10px';
+                div.style.cursor = 'pointer';
+                div.style.border = '2px solid #ccc';
+                div.style.backgroundColor = option.toLowerCase();
+                div.innerText = option;
+
+                div.onclick = () => checkAnswer(option, questionColor, overlay);
+                optionsDiv.appendChild(div);
+            });
+        }
+
+        function checkAnswer(selected, questionColor, overlay) {
+            const result = document.querySelector('#overlay p:nth-of-type(2)');
+            if (selected === questionColor) {
+                result.innerText = 'Correct! You are not a robot.';
+                setTimeout(() => {
+                    overlay.style.display = 'none'; // Hide the popup after a short delay
+                }, 1000); // Delay before hiding (optional)
+            } else {
+                result.innerText = 'Incorrect, please try again.';
+            }
+        }
+
+        // Check if it's the user's first visit
+        if (!sessionStorage.getItem('captchaShown')) {
+            sessionStorage.setItem('captchaShown', 'true'); // Set flag in session storage
+            loadCaptcha(); // Load the captcha
+        }
+    })();
+</script>
